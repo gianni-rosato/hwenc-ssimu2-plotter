@@ -6,5 +6,7 @@ In order for it to function, you need [ssimulacra2_rs](https://github.com/rust-a
 ## Usage
 `./ssimu2_hwenc_plotter.sh [source] [output.csv]`
 
+For editing the script with ffmpeg vaapi options, check [here](https://ffmpeg.org/ffmpeg-codecs.html#VAAPI-encoders) for ffmpeg's docs on the subject.
+
 ## Results
 The first column in the csv file will be the target bitrate for each encode, with rows containing corresponding SSIMULACRA2 scores. You can see what those mean [here](https://github.com/cloudinary/ssimulacra2#usage).

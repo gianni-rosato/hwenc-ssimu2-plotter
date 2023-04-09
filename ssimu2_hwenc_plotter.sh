@@ -30,8 +30,7 @@ get_bitrate () {
 do_ssimu2 () {
     # first arg is source
     # second arg is cringe
-    score=$(ssimulacra2_rs video -f 14 "$1" "$2")
-    echo ${score:6}
+    ssimulacra2_rs video -f 14 "$1" "$2" | grep Mean | tr -dc ".0123456789-"
 }
 
 mkdir "$outdir"
@@ -44,7 +43,7 @@ while [[ $done -eq 0 ]] ; do
     bitrate=$(get_bitrate "$fname")
     echo -n "$bitrate " >> $2
     ssim2=$(do_ssimu2 "$infile" "$fname")
-    echo $ssim2 | grep Mean: | tr -dc ".0123456789-" >> $2
+    echo $ssim2 >> $2
     if [[ $cur_q -eq $Q_END ]] ; then
         done=1
     fi

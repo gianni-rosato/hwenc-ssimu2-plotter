@@ -17,9 +17,14 @@ outdir=$noextension2
 
 # Also edit per codec
 hwenc () {
-	# ffmpeg -hwaccel vaapi -hwaccel_output_format vaapi -vaapi_device /dev/dri/renderD128 -i crowd_run_1080p50_smaller.mkv -b:v "$1"K -c:v hevc_vaapi -compression_level 7 "$outdir/$noextension-$1K.mkv"
-	# ffmpeg -hwaccel vaapi -hwaccel_output_format vaapi -vaapi_device /dev/dri/renderD128 -i crowd_run_1080p50_smaller.mkv -b:v "$1"K -c:v h264_vaapi -compression_level 7 "$outdir/$noextension-$1K.mkv"
-	ffmpeg -hwaccel vaapi -hwaccel_output_format vaapi -vaapi_device /dev/dri/renderD128 -i crowd_run_1080p50_smaller.mkv -b:v "$1"K -c:v vp9_vaapi -compression_level 7 "$outdir/$noextension-$1K.mkv"
+	ffmpeg -copyts -hwaccel vaapi -hwaccel_output_format vaapi -vaapi_device /dev/dri/renderD128 -i "$infile" -b:v "$1"K -c:v hevc_vaapi -compression_level 7 "$outdir/$noextension-$1K.mkv"
+	# ffmpeg -copyts -hwaccel vaapi -hwaccel_output_format vaapi -vaapi_device /dev/dri/renderD128 -i "$infile" -b:v "$1"K -c:v h264_vaapi -compression_level 7 "$outdir/$noextension-$1K.mkv"
+	# ffmpeg -copyts -hwaccel vaapi -hwaccel_output_format vaapi -vaapi_device /dev/dri/renderD128 -i "$infile" -b:v "$1"K -c:v vp9_vaapi -compression_level 7 "$outdir/$noextension-$1K.mkv"
+	# ffmpeg -i "$infile" -copyts -b:v "$1"K -c:v libx264 -preset slower -g:v 250 "$outdir/$noextension-$1K.mkv"
+}
+
+get_bitrate () {
+	ffprobe -show_format "$1" | grep bit_rate | tr -dc ".0123456789-"
 }
 
 do_ssimu2 () {
@@ -36,8 +41,10 @@ while [[ $done -eq 0 ]] ; do
     $(hwenc $cur_q)
     echo -n "$cur_q " >> $2
     fname="$outdir/$noextension-"$cur_q"K.mkv"
+    bitrate=$(get_bitrate "$fname")
+    echo -n "$bitrate " >> $2
     ssim2=$(do_ssimu2 "$infile" "$fname")
-    echo $ssim2 >> $2
+    echo $ssim2 | grep Mean: | tr -dc ".0123456789-" >> $2
     if [[ $cur_q -eq $Q_END ]] ; then
         done=1
     fi
